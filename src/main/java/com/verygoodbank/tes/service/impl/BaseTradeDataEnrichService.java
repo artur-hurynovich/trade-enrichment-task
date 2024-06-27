@@ -7,9 +7,11 @@ import com.verygoodbank.tes.service.TradeDataMapper;
 import com.verygoodbank.tes.validator.TradeDataDateValidator;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.List;
 
+@Service
 public class BaseTradeDataEnrichService implements TradeDataEnrichService {
 
     private static final String NON_VALID_DATE_MSG = "Non-valid format of the date: {}";

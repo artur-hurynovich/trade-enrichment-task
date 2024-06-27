@@ -2,6 +2,8 @@ package com.verygoodbank.tes.dao.impl;
 
 import com.verygoodbank.tes.dao.ProductNameDao;
 import com.verygoodbank.tes.exception.CsvFileReadException;
+import org.springframework.beans.factory.annotation.Value;
+import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
 import java.nio.file.Files;
@@ -11,6 +13,7 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+@Repository
 public class CsvFileProductNameDao implements ProductNameDao {
 
     private static final String LINE_SEPARATOR = ",";
@@ -19,8 +22,8 @@ public class CsvFileProductNameDao implements ProductNameDao {
 
     private final Map<String, String> productNameByProductId;
 
-    public CsvFileProductNameDao(final String csvFilePath) {
-        Path path = Paths.get(csvFilePath);
+    public CsvFileProductNameDao(@Value("${product.csv-file-path}") final String csvFilePath) {
+        final Path path = Paths.get(csvFilePath);
 
         this.productNameByProductId = buildProductNameByProductId(path);
     }

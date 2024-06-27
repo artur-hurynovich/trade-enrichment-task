@@ -6,9 +6,11 @@ import com.verygoodbank.tes.model.impl.NamedTradeData;
 import com.verygoodbank.tes.service.TradeDataMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.stereotype.Service;
 
 import java.util.Optional;
 
+@Service
 public class BaseTradeDataMapper implements TradeDataMapper {
 
     private static final String PRODUCT_NAME_NOT_FOUND_MSG = "Product name for product with ID={} not found";
