@@ -22,7 +22,7 @@ public class BaseTradeDataCsvFileService implements TradeDataCsvFileService {
     private static final String FAILED_TO_PARSE_FILE_MSG = "Failed to parser file: ";
 
     private static final String HEADER = "date,product_name,currency,price";
-    private static final String NEW_LINE = System.lineSeparator();
+    private static final String NEW_LINE = "\n";
 
     @Override
     public List<IdentifiedTradeData> parse(final MultipartFile file) {
@@ -69,6 +69,8 @@ public class BaseTradeDataCsvFileService implements TradeDataCsvFileService {
                 .append(namedTradeData.getPrice())
                 .append(NEW_LINE));
 
-        return stringBuilder.toString();
+        return stringBuilder
+                .toString()
+                .trim();
     }
 }
