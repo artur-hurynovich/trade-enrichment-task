@@ -5,5 +5,5 @@ import com.verygoodbank.tes.model.impl.NamedTradeData;
 
 public interface TradeDataMapper {
 
-    NamedTradeData map(IdentifiedTradeData identifiedTradeData, String productName);
+    NamedTradeData map(IdentifiedTradeData identifiedTradeData);
 }
