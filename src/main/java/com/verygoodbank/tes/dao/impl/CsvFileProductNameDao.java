@@ -1,7 +1,7 @@
 package com.verygoodbank.tes.dao.impl;
 
 import com.verygoodbank.tes.dao.ProductNameDao;
-import com.verygoodbank.tes.exception.CsvFileReadException;
+import com.verygoodbank.tes.exception.CsvReadException;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Repository;
 
@@ -37,7 +37,7 @@ public class CsvFileProductNameDao implements ProductNameDao {
                     .map(line -> line.split(LINE_SEPARATOR))
                     .collect(Collectors.toUnmodifiableMap(lineArray -> lineArray[0], lineArray -> lineArray[1]));
         } catch (final IOException e) {
-            throw new CsvFileReadException(FAILED_TO_READ_CSV_FILE_EXCEPTION_MSG + path, e);
+            throw new CsvReadException(FAILED_TO_READ_CSV_FILE_EXCEPTION_MSG + path, e);
         }
     }
 
