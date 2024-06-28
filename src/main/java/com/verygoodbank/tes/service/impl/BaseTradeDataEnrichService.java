@@ -8,6 +8,7 @@ import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
 import java.util.ArrayList;
+import java.util.Collections;
 import java.util.List;
 
 @Service
@@ -50,6 +51,6 @@ public class BaseTradeDataEnrichService implements TradeDataEnrichService {
                 .toList();
         resultLines.addAll(enrichedLines);
 
-        return resultLines;
+        return Collections.unmodifiableList(resultLines);
     }
 }
