@@ -4,6 +4,7 @@ import org.junit.jupiter.api.Test;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
+import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
 
@@ -38,15 +39,19 @@ class TradeEnrichmentControllerTest {
 
     @Test
     void given_scvFile_when_enrich_then_returnNewCsvFile() throws Exception {
+        final MockMultipartFile file = generateOriginalFile();
+
+        mockMvc
+                .perform(multipart(REQUEST_PATH).file(file))
+                .andExpect(status().isOk())
+                .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
+                .andExpect(content().bytes(EXPECTED_RESPONSE.getBytes()));
+    }
+
+    private MockMultipartFile generateOriginalFile() throws Exception {
         final Path path = Paths.get(CSV_FILE_PATH);
         try (final InputStream inputStream = Files.newInputStream(path)) {
-            final MockMultipartFile file = new MockMultipartFile(FILE_REQUEST_PARAM, CSV_FILE_NAME, CONTENT_TYPE,
-                    inputStream);
-
-            mockMvc
-                    .perform(multipart(REQUEST_PATH).file(file))
-                    .andExpect(status().isOk())
-                    .andExpect(content().string(EXPECTED_RESPONSE));
+            return new MockMultipartFile(FILE_REQUEST_PARAM, CSV_FILE_NAME, CONTENT_TYPE, inputStream);
         }
     }
 }

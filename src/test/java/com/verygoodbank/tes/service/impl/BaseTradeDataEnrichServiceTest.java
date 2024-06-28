@@ -1,9 +1,7 @@
 package com.verygoodbank.tes.service.impl;
 
-import com.verygoodbank.tes.model.impl.IdentifiedTradeData;
-import com.verygoodbank.tes.model.impl.NamedTradeData;
 import com.verygoodbank.tes.service.TradeDataMapper;
-import com.verygoodbank.tes.validator.TradeDataDateValidator;
+import com.verygoodbank.tes.validator.DateFormatValidator;
 import org.junit.jupiter.api.Assertions;
 import org.junit.jupiter.api.Test;
 import org.junit.jupiter.api.extension.ExtendWith;
@@ -17,20 +15,23 @@ import java.util.List;
 @ExtendWith(MockitoExtension.class)
 class BaseTradeDataEnrichServiceTest {
 
-    private static final String DATE_1 = "20240628";
-    private static final String CURRENCY_1 = "20240628";
-    private static final String PRICE_1 = "20240628";
-    private static final String PRODUCT_ID_1 = "20240628";
+    private static final String[] ORIGINAL_HEADER = {"date", "product_id", "currency", "price"};
+    private static final String[] RESULT_HEADER = {"date", "product_name", "currency", "price"};
 
-    private static final String DATE_2 = "20240628";
-    private static final String CURRENCY_2 = "20240628";
-    private static final String PRICE_2 = "20240628";
-    private static final String PRODUCT_ID_2 = "20240628";
+    private static final String DATE_1 = "20240628";
+    private static final String PRODUCT_ID_1 = "16";
+    private static final String CURRENCY_1 = "EUR";
+    private static final String PRICE_1 = "10.10";
+
+    private static final String DATE_2 = "2024-06-28";
+    private static final String PRODUCT_ID_2 = "36";
+    private static final String CURRENCY_2 = "USD";
+    private static final String PRICE_2 = "20.20";
 
     private static final String PRODUCT_NAME = "Test Product Name";
 
     @Mock
-    private TradeDataDateValidator validator;
+    private DateFormatValidator validator;
 
     @Mock
     private TradeDataMapper mapper;
@@ -40,36 +41,25 @@ class BaseTradeDataEnrichServiceTest {
 
     @Test
     void given_identifiedTradeDataList_when_enrich_then_returnNamedTradeDataList() {
-        final IdentifiedTradeData identifiedTradeData1 = generateIdentifiedTradeData1();
-        final IdentifiedTradeData identifiedTradeData2 = generateIdentifiedTradeData2();
-        final NamedTradeData namedTradeData1 = generateNamedTradeData1();
+        final String[] originalLine1 = {DATE_1, PRODUCT_ID_1, CURRENCY_1, PRICE_1};
+        final String[] originalLine2 = {DATE_2, PRODUCT_ID_2, CURRENCY_2, PRICE_2};
+        final String[] enrichedLine1 = {DATE_1, PRODUCT_NAME, CURRENCY_1, PRICE_1};
 
         Mockito
-                .when(validator.isValidDate(identifiedTradeData1))
+                .when(validator.isValidFormat(DATE_1))
                 .thenReturn(true);
         Mockito
-                .when(validator.isValidDate(identifiedTradeData2))
+                .when(validator.isValidFormat(DATE_2))
                 .thenReturn(false);
         Mockito
-                .when(mapper.map(identifiedTradeData1))
-                .thenReturn(namedTradeData1);
+                .when(mapper.map(originalLine1))
+                .thenReturn(enrichedLine1);
 
-        final List<NamedTradeData> actualNamedTradeDataList = service.enrich(
-                List.of(identifiedTradeData1, identifiedTradeData2));
+        final List<String[]> actualEnrichedLines = service.enrich(
+                List.of(ORIGINAL_HEADER, originalLine1, originalLine2));
 
-        Assertions.assertEquals(1, actualNamedTradeDataList.size());
-        Assertions.assertEquals(namedTradeData1, actualNamedTradeDataList.get(0));
-    }
-
-    private IdentifiedTradeData generateIdentifiedTradeData1() {
-        return new IdentifiedTradeData(DATE_1, CURRENCY_1, PRICE_1, PRODUCT_ID_1);
-    }
-
-    private IdentifiedTradeData generateIdentifiedTradeData2() {
-        return new IdentifiedTradeData(DATE_2, CURRENCY_2, PRICE_2, PRODUCT_ID_2);
-    }
-
-    private NamedTradeData generateNamedTradeData1() {
-        return new NamedTradeData(DATE_1, CURRENCY_1, PRICE_1, PRODUCT_NAME);
+        Assertions.assertEquals(2, actualEnrichedLines.size());
+        Assertions.assertArrayEquals(RESULT_HEADER, actualEnrichedLines.get(0));
+        Assertions.assertArrayEquals(enrichedLine1, actualEnrichedLines.get(1));
     }
 }

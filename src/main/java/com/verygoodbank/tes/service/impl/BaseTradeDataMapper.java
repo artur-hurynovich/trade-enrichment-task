@@ -1,13 +1,12 @@
 package com.verygoodbank.tes.service.impl;
 
 import com.verygoodbank.tes.dao.ProductNameDao;
-import com.verygoodbank.tes.model.impl.IdentifiedTradeData;
-import com.verygoodbank.tes.model.impl.NamedTradeData;
 import com.verygoodbank.tes.service.TradeDataMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
 import org.springframework.stereotype.Service;
 
+import java.util.Arrays;
 import java.util.Optional;
 
 @Service
@@ -26,17 +25,16 @@ public class BaseTradeDataMapper implements TradeDataMapper {
     }
 
     @Override
-    public NamedTradeData map(final IdentifiedTradeData identifiedTradeData) {
-        final String date = identifiedTradeData.getDate();
-        final String currency = identifiedTradeData.getCurrency();
-        final String price = identifiedTradeData.getPrice();
-        final String productName = resolveProductName(identifiedTradeData);
+    public String[] map(final String[] originalLine) {
+        final String[] enrichedLine = Arrays.copyOf(originalLine, originalLine.length);
+        final String productId = enrichedLine[1];
+        final String productName = resolveProductName(productId);
+        enrichedLine[1] = productName;
 
-        return new NamedTradeData(date, currency, price, productName);
+        return enrichedLine;
     }
 
-    private String resolveProductName(final IdentifiedTradeData identifiedTradeData) {
-        final String productId = identifiedTradeData.getProductId();
+    private String resolveProductName(final String productId) {
         final Optional<String> productNameOptional = dao.getByProductId(productId);
         if (productNameOptional.isPresent()) {
             return productNameOptional.get();

@@ -1,11 +1,10 @@
 package com.verygoodbank.tes.web.controller;
 
 
-import com.verygoodbank.tes.model.impl.IdentifiedTradeData;
-import com.verygoodbank.tes.model.impl.NamedTradeData;
-import com.verygoodbank.tes.service.TradeDataCsvFileService;
+import com.verygoodbank.tes.service.TradeDataCsvReader;
+import com.verygoodbank.tes.service.TradeDataCsvWriter;
 import com.verygoodbank.tes.service.TradeDataEnrichService;
-import org.springframework.core.io.Resource;
+import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
@@ -19,24 +18,27 @@ import java.util.List;
 @RequestMapping("api/v1")
 public class TradeEnrichmentController {
 
-    private final TradeDataCsvFileService csvFileService;
+    private final TradeDataCsvReader reader;
 
     private final TradeDataEnrichService enrichService;
 
-    public TradeEnrichmentController(final TradeDataCsvFileService csvFileService,
-                                     final TradeDataEnrichService enrichService) {
-        this.csvFileService = csvFileService;
+    private final TradeDataCsvWriter writer;
+
+    public TradeEnrichmentController(final TradeDataCsvReader reader, final TradeDataEnrichService enrichService,
+                                     final TradeDataCsvWriter writer) {
+        this.reader = reader;
         this.enrichService = enrichService;
+        this.writer = writer;
     }
 
-    @PostMapping("/enrich")
-    public ResponseEntity<Resource> enrich(@RequestParam("file") final MultipartFile file) {
-        final List<IdentifiedTradeData> identifiedTradeDataList = csvFileService.parse(file);
+    @PostMapping(value = "/enrich", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
+    public ResponseEntity<byte[]> enrich(@RequestParam("file") final MultipartFile file) {
+        final List<String[]> originalLines = reader.read(file);
 
-        final List<NamedTradeData> namedTradeDataList = enrichService.enrich(identifiedTradeDataList);
+        final List<String[]> enrichedLines = enrichService.enrich(originalLines);
 
-        final Resource resource = csvFileService.write(namedTradeDataList);
+        final byte[] result = writer.write(enrichedLines);
 
-        return ResponseEntity.ok(resource);
+        return ResponseEntity.ok(result);
     }
 }
