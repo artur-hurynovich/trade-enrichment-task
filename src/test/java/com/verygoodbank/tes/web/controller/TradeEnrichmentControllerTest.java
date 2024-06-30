@@ -7,14 +7,17 @@ import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.MediaType;
 import org.springframework.mock.web.MockMultipartFile;
 import org.springframework.test.web.servlet.MockMvc;
+import org.springframework.test.web.servlet.MvcResult;
 
 import java.io.InputStream;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
+import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.asyncDispatch;
 import static org.springframework.test.web.servlet.request.MockMvcRequestBuilders.multipart;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.content;
+import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.request;
 import static org.springframework.test.web.servlet.result.MockMvcResultMatchers.status;
 
 @SpringBootTest
@@ -41,8 +44,13 @@ class TradeEnrichmentControllerTest {
     void given_scvFile_when_enrich_then_returnNewCsvFile() throws Exception {
         final MockMultipartFile file = generateOriginalFile();
 
-        mockMvc
+        final MvcResult result = mockMvc
                 .perform(multipart(REQUEST_PATH).file(file))
+                .andExpect(request().asyncStarted())
+                .andReturn();
+
+        mockMvc
+                .perform(asyncDispatch(result))
                 .andExpect(status().isOk())
                 .andExpect(content().contentType(MediaType.APPLICATION_OCTET_STREAM_VALUE))
                 .andExpect(content().bytes(EXPECTED_RESPONSE.getBytes()));

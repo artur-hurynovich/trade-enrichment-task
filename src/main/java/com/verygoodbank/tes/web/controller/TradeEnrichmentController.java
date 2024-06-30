@@ -6,6 +6,7 @@ import com.verygoodbank.tes.service.TradeDataCsvWriter;
 import com.verygoodbank.tes.service.TradeDataEnrichService;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
+import org.springframework.scheduling.annotation.Async;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestMapping;
 import org.springframework.web.bind.annotation.RequestParam;
@@ -13,6 +14,7 @@ import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
 import java.util.List;
+import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("api/v1")
@@ -32,13 +34,16 @@ public class TradeEnrichmentController {
     }
 
     @PostMapping(value = "/enrich", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
-    public ResponseEntity<byte[]> enrich(@RequestParam("file") final MultipartFile file) {
-        final List<String[]> originalLines = reader.read(file);
+    @Async
+    public CompletableFuture<ResponseEntity<byte[]>> enrich(@RequestParam("file") final MultipartFile file) {
+        return CompletableFuture.supplyAsync(() -> {
+            final List<String[]> originalLines = reader.read(file);
 
-        final List<String[]> enrichedLines = enrichService.enrich(originalLines);
+            final List<String[]> enrichedLines = enrichService.enrich(originalLines);
 
-        final byte[] result = writer.write(enrichedLines);
+            final byte[] result = writer.write(enrichedLines);
 
-        return ResponseEntity.ok(result);
+            return ResponseEntity.ok(result);
+        });
     }
 }
