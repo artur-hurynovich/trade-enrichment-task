@@ -4,11 +4,15 @@ import com.verygoodbank.tes.dao.ProductNameDao;
 import com.verygoodbank.tes.service.TradeDataMapper;
 import org.slf4j.Logger;
 import org.slf4j.LoggerFactory;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.util.Arrays;
 import java.util.Optional;
 
+/**
+ * Base {@code TradeDataMapper} implementation
+ */
 @Service
 public class BaseTradeDataMapper implements TradeDataMapper {
 
@@ -24,8 +28,12 @@ public class BaseTradeDataMapper implements TradeDataMapper {
         this.dao = dao;
     }
 
+    /**
+     * See {@link TradeDataMapper#map(String[])}. Additionally, method maps product id to product name
+     * using {@code ProductNameDao}
+     */
     @Override
-    public String[] map(final String[] originalLine) {
+    public String[] map(@NonNull final String[] originalLine) {
         final String[] enrichedLine = Arrays.copyOf(originalLine, originalLine.length);
         final String productId = enrichedLine[1];
         final String productName = resolveProductName(productId);

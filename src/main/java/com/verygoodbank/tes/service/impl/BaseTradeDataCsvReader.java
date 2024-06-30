@@ -2,6 +2,7 @@ package com.verygoodbank.tes.service.impl;
 
 import com.verygoodbank.tes.exception.CsvReadException;
 import com.verygoodbank.tes.service.TradeDataCsvReader;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 import org.springframework.web.multipart.MultipartFile;
 
@@ -10,6 +11,10 @@ import java.io.IOException;
 import java.io.InputStreamReader;
 import java.util.List;
 
+/**
+ * Base {@code TradeDataCsvReader} implementation. Uses {@code BufferedReader} to read the data
+ * from a {@code MultipartFile}
+ */
 @Service
 public class BaseTradeDataCsvReader implements TradeDataCsvReader {
 
@@ -17,8 +22,11 @@ public class BaseTradeDataCsvReader implements TradeDataCsvReader {
 
     private static final String FAILED_TO_READ_FILE_MSG = "Failed to read file: ";
 
+    /**
+     * See {@link TradeDataCsvReader#read(MultipartFile)}
+     */
     @Override
-    public List<String[]> read(final MultipartFile file) {
+    public List<String[]> read(@NonNull final MultipartFile file) {
         try (final BufferedReader bufferedReader = new BufferedReader(new InputStreamReader(file.getInputStream()))) {
             return bufferedReader
                     .lines()

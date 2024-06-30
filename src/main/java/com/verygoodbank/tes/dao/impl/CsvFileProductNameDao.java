@@ -3,6 +3,7 @@ package com.verygoodbank.tes.dao.impl;
 import com.verygoodbank.tes.dao.ProductNameDao;
 import com.verygoodbank.tes.exception.CsvReadException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
 import java.io.IOException;
@@ -13,6 +14,11 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
 
+/**
+ * {@code ProductNameDao} implementation based on storing product name to product id mappings in a {@code Map}
+ * loaded from a CSV file. Once mappings are loaded from the CSV file they remain unchanged during
+ * the whole instance lifecycle
+ */
 @Repository
 public class CsvFileProductNameDao implements ProductNameDao {
 
@@ -41,8 +47,11 @@ public class CsvFileProductNameDao implements ProductNameDao {
         }
     }
 
+    /**
+     * See {@link ProductNameDao#getByProductId(String)}
+     */
     @Override
-    public Optional<String> getByProductId(final String productId) {
+    public Optional<String> getByProductId(@NonNull final String productId) {
         final String productName = productNameByProductId.get(productId);
 
         return Optional.ofNullable(productName);

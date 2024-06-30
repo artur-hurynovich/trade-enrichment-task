@@ -2,11 +2,15 @@ package com.verygoodbank.tes.validator.impl;
 
 import com.verygoodbank.tes.validator.DateFormatValidator;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Service;
 
 import java.time.format.DateTimeFormatter;
 import java.time.format.DateTimeParseException;
 
+/**
+ * Base {@code DateFormatValidator} implementation
+ */
 @Service
 public class BaseDateFormatValidator implements DateFormatValidator {
 
@@ -16,8 +20,11 @@ public class BaseDateFormatValidator implements DateFormatValidator {
         this.formatter = DateTimeFormatter.ofPattern(tradeDataDatePattern);
     }
 
+    /**
+     * See {@link DateFormatValidator#isValidFormat(String)}
+     */
     @Override
-    public boolean isValidFormat(final String date) {
+    public boolean isValidFormat(@NonNull final String date) {
         try {
             formatter.parse(date);
         } catch (DateTimeParseException e) {
