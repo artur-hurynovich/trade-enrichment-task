@@ -3,13 +3,13 @@ package com.verygoodbank.tes.dao.impl;
 import com.verygoodbank.tes.dao.ProductNameDao;
 import com.verygoodbank.tes.exception.CsvReadException;
 import org.springframework.beans.factory.annotation.Value;
+import org.springframework.core.io.ClassPathResource;
 import org.springframework.lang.NonNull;
 import org.springframework.stereotype.Repository;
 
+import java.io.BufferedReader;
 import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Path;
-import java.nio.file.Paths;
+import java.io.InputStreamReader;
 import java.util.Map;
 import java.util.Optional;
 import java.util.stream.Collectors;
@@ -24,26 +24,24 @@ public class CsvFileProductNameDao implements ProductNameDao {
 
     private static final String LINE_SEPARATOR = ",";
 
-    private static final String FAILED_TO_READ_CSV_FILE_EXCEPTION_MSG = "Failed to read CSV file with path: ";
+    private static final String FAILED_TO_READ_CSV_FILE_MSG = "Failed to read CSV file: ";
 
     private final Map<String, String> productNameByProductId;
 
-    public CsvFileProductNameDao(@Value("${product.csv-file-path}") final String csvFilePath) {
-        final Path path = Paths.get(csvFilePath);
-
-        this.productNameByProductId = buildProductNameByProductId(path);
+    public CsvFileProductNameDao(@Value("${product.csv-file-name}") final String csvFileName) {
+        this.productNameByProductId = buildProductNameByProductId(csvFileName);
     }
 
-    private static Map<String, String> buildProductNameByProductId(final Path path) {
-        try {
-            return Files
-                    .readAllLines(path)
-                    .stream()
+    private static Map<String, String> buildProductNameByProductId(final String csvFileName) {
+        try (final BufferedReader bufferedReader = new BufferedReader(
+                new InputStreamReader(new ClassPathResource(csvFileName).getInputStream()))) {
+            return bufferedReader
+                    .lines()
                     .skip(1L)
                     .map(line -> line.split(LINE_SEPARATOR))
                     .collect(Collectors.toUnmodifiableMap(lineArray -> lineArray[0], lineArray -> lineArray[1]));
         } catch (final IOException e) {
-            throw new CsvReadException(FAILED_TO_READ_CSV_FILE_EXCEPTION_MSG + path, e);
+            throw new CsvReadException(FAILED_TO_READ_CSV_FILE_MSG + csvFileName, e);
         }
     }
 
