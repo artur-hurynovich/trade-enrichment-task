@@ -1,9 +1,7 @@
 package com.verygoodbank.tes.web.controller;
 
 
-import com.verygoodbank.tes.service.TradeDataCsvReader;
-import com.verygoodbank.tes.service.TradeDataCsvWriter;
-import com.verygoodbank.tes.service.TradeDataEnrichService;
+import com.verygoodbank.tes.service.TradeDataEnrichFacade;
 import org.springframework.http.MediaType;
 import org.springframework.http.ResponseEntity;
 import org.springframework.scheduling.annotation.Async;
@@ -13,35 +11,23 @@ import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 import org.springframework.web.multipart.MultipartFile;
 
-import java.util.List;
 import java.util.concurrent.CompletableFuture;
 
 @RestController
 @RequestMapping("api/v1")
 public class TradeEnrichmentController {
 
-    private final TradeDataCsvReader reader;
+    private final TradeDataEnrichFacade facade;
 
-    private final TradeDataEnrichService enrichService;
-
-    private final TradeDataCsvWriter writer;
-
-    public TradeEnrichmentController(final TradeDataCsvReader reader, final TradeDataEnrichService enrichService,
-                                     final TradeDataCsvWriter writer) {
-        this.reader = reader;
-        this.enrichService = enrichService;
-        this.writer = writer;
+    public TradeEnrichmentController(final TradeDataEnrichFacade facade) {
+        this.facade = facade;
     }
 
     @PostMapping(value = "/enrich", produces = MediaType.APPLICATION_OCTET_STREAM_VALUE)
     @Async
     public CompletableFuture<ResponseEntity<byte[]>> enrich(@RequestParam("file") final MultipartFile file) {
         return CompletableFuture.supplyAsync(() -> {
-            final List<String[]> originalLines = reader.read(file);
-
-            final List<String[]> enrichedLines = enrichService.enrich(originalLines);
-
-            final byte[] result = writer.write(enrichedLines);
+            final byte[] result = facade.enrich(file);
 
             return ResponseEntity.ok(result);
         });
