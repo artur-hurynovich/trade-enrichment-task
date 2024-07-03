@@ -35,7 +35,8 @@ class TradeEnrichmentControllerTest {
             20160101,Treasury Bills Domestic,EUR,10.0
             20160101,Corporate Bonds Domestic,EUR,20.1
             20160101,REPO Domestic,EUR,30.34
-            20160101,Missing Product Name,EUR,35.34""";
+            20160101,Missing Product Name,EUR,35.34
+            """;
 
     @Autowired
     private MockMvc mockMvc;
